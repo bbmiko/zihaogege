@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#5B7C99">
+<title>上岸 · 给她一个家</title>
+<style>
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    color: #3A3F4B;
+    background: linear-gradient(165deg, #FDF6F0 0%, #FBEAF0 45%, #EDE4F2 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    position: relative;
+    overscroll-behavior-y: contain;
+  }
+  button { font-family: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+
+  /* 背景飘心 */
+  .hearts-bg { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+  .float-heart {
+    position: absolute; bottom: -30px; opacity: 0; color: #E8A0B8; user-select: none;
+    animation: floatUp linear forwards;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: .8; }
+    90%  { opacity: .5; }
+    100% { transform: translateY(-110vh) rotate(40deg); opacity: 0; }
+  }
+
+  .app { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; padding: 28px 16px 80px; }
+
+  /* Hero */
+  .hero { text-align: center; padding: 8px 0 20px; }
+  .hero-tag {
+    display: inline-block; background: rgba(255,255,255,.65); backdrop-filter: blur(8px);
+    border-radius: 999px; padding: 6px 14px; font-size: 12px; color: #7C5C9E;
+    letter-spacing: 2px; box-shadow: 0 4px 14px rgba(160,120,190,.15);
+  }
+  .hero h1 {
+    font-size: 32px; font-weight: 700; margin-top: 14px; color: #6B4E8E; letter-spacing: 3px;
+  }
+  .hero-sub { margin-top: 8px; font-size: 14px; color: #8A7A98; }
+
+  .card {
+    background: rgba(255,255,255,.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-radius: 22px; padding: 20px 18px 22px; margin-bottom: 16px;
+    box-shadow: 0 8px 28px rgba(120,90,150,.10), inset 0 1px 0 rgba(255,255,255,.9);
+    border: 1px solid rgba(255,255,255,.55); position: relative; overflow: hidden;
+  }
+  .card-head { margin-bottom: 14px; }
+  .card-title { font-size: 16px; font-weight: 600; color: #6B4E8E; letter-spacing: 1px; }
+
+  /* 倒计时 */
+  .count-card { text-align: center; background: linear-gradient(160deg, rgba(251,234,240,.9), rgba(255,255,255,.75)); }
+  .count-label { font-size: 13px; color: #8A7A98; letter-spacing: 1px; }
+  .count-grid { display: flex; justify-content: center; gap: 8px; margin: 14px 0 6px; }
+  .count-cell {
+    min-width: 62px; background: rgba(255,255,255,.8); border-radius: 14px; padding: 12px 8px 10px;
+    box-shadow: 0 4px 12px rgba(120,90,150,.12);
+  }
+  .count-num { font-size: 30px; font-weight: 700; color: #7C5C9E; font-variant-numeric: tabular-nums; line-height: 1; }
+  .count-unit { font-size: 11px; color: #A08BA8; margin-top: 4px; }
+  .count-date { font-size: 12px; color: #8A7A98; margin-top: 4px; }
+  .count-done { font-size: 22px; font-weight: 700; color: #6B4E8E; padding: 12px 0; }
+
+  /* 国考/省考双倒计时 */
+  .exam-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .exam-tab {
+    flex: 1; padding: 10px 6px; border-radius: 12px; font-size: 14px; font-weight: 600;
+    color: #A08BA8; background: rgba(255,255,255,.55); transition: all .2s ease; letter-spacing: 1px;
+  }
+  .exam-tab.active { color: #fff; background: linear-gradient(135deg, #A98CC8, #8A6BB0); box-shadow: 0 4px 12px rgba(138,107,176,.3); }
+
+  /* 上岸冲刺进度条 */
+  .progress-card { }
+  .progress-bar { height: 14px; background: rgba(160,139,168,.2); border-radius: 999px; overflow: hidden; margin: 10px 0 6px; }
+  .progress-fill {
+    height: 100%; width: 0%; border-radius: 999px;
+    background: linear-gradient(90deg, #E8A0B8, #A98CC8, #7C5C9E);
+    transition: width .6s ease;
+  }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #8A7A98; }
+
+  /* 奖励揭晓 */
+  .reward-card { text-align: center; }
+  .reward-trigger {
+    display: block; width: 100%; padding: 18px 12px; border-radius: 16px;
+    background: linear-gradient(135deg, #FBEAF0, #EDE4F2); cursor: pointer; user-select: none;
+    transition: transform .15s ease; box-shadow: 0 6px 16px rgba(160,120,190,.18);
+  }
+  .reward-trigger:active { transform: scale(.97); }
+  .reward-gift { font-size: 40px; }
+  .reward-text { font-size: 15px; font-weight: 600; color: #6B4E8E; margin-top: 8px; letter-spacing: 1px; }
+  .reward-hint { font-size: 12px; color: #A08BA8; margin-top: 6px; }
+  .reward-reveal { display: none; margin-top: 16px; animation: fadeUp .5s ease; }
+  .reward-reveal.show { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* 照片 */
+  .photo-row { display: flex; gap: 10px; margin-top: 14px; }
+  .photo-item { flex: 1; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 16px rgba(120,90,150,.18); }
+  .photo-item img { width: 100%; display: block; aspect-ratio: 3/4; object-fit: cover; }
+  .photo-item.big { flex: 1.4; }
+  .photo-item.big img { aspect-ratio: 4/3; }
+  .photo-cap { text-align: center; font-size: 11px; color: #A08BA8; margin-top: 6px; }
+
+  /* 人生蓝图时间线 */
+  .timeline { position: relative; padding-left: 22px; }
+  .timeline::before { content: ""; position: absolute; left: 7px; top: 6px; bottom: 6px; width: 2px; background: linear-gradient(#E8A0B8, #A98CC8); }
+  .tl-item { position: relative; margin-bottom: 16px; }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-dot {
+    position: absolute; left: -22px; top: 4px; width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; border: 3px solid #A98CC8;
+  }
+  .tl-year { font-size: 12px; color: #7C5C9E; font-weight: 700; letter-spacing: 1px; }
+  .tl-text { font-size: 14px; color: #4A4453; line-height: 1.6; margin-top: 2px; }
+
+  /* 加油按钮 */
+  .cheer-btn {
+    display: block; width: 100%; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 700;
+    color: #fff; letter-spacing: 2px; text-align: center;
+    background: linear-gradient(135deg, #A98CC8, #8A6BB0); box-shadow: 0 8px 20px rgba(138,107,176,.32);
+    transition: transform .15s ease;
+  }
+  .cheer-btn:active { transform: scale(.96); }
+  .cheer-count { text-align: center; font-size: 12px; color: #8A7A98; margin-top: 8px; }
+
+  .foot { text-align: center; padding: 22px 0 6px; color: #A08BA8; font-size: 13px; line-height: 1.8; }
+  .foot-sub { font-size: 11px; opacity: .65; }
+
+  @media (min-width: 520px) { .app { padding-top: 40px; padding-bottom: 100px; } }
+</style>
+</head>
+<body>
+
+<div class="hearts-bg" id="heartsBg"></div>
+
+<div class="app">
+
+  <header class="hero">
+    <div class="hero-tag">🏛 上岸倒计时</div>
+    <h1>拼一把，为了她</h1>
+    <p class="hero-sub">兄弟，考公这条路我陪你走到上岸 🎯</p>
+  </header>
+
+  <!-- 1. 倒计时（国考 + 省考） -->
+  <section class="card count-card">
+    <div class="exam-tabs">
+      <button class="exam-tab active" data-exam="guokao">国考 11·29</button>
+      <button class="exam-tab" data-exam="shengkao">广东 12·06</button>
+    </div>
+    <div class="count-label" id="countLabel">距离 2027 国考笔试</div>
+    <div class="count-grid" id="countGrid"></div>
+    <div class="count-date" id="countDate">2026 年 11 月 29 日</div>
+  </section>
+
+  <!-- 2. 上岸进度 -->
+  <section class="card progress-card">
+    <div class="card-head"><span class="card-title">📈 冲刺进度</span></div>
+    <div class="progress-label">
+      <span>报名</span><span>缴费</span><span>准考证</span><span>笔试 🎯</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div style="text-align:center;font-size:12px;color:#8A7A98;margin-top:6px;" id="progressText">—</div>
+  </section>
+
+  <!-- 3. 考上奖励 -->
+  <section class="card reward-card">
+    <div class="card-head"><span class="card-title">🎁 考上之后，奖励是…</span></div>
+    <div class="reward-trigger" id="rewardTrigger">
+      <div class="reward-gift">🎁</div>
+      <div class="reward-text">点开看看你的奖励</div>
+      <div class="reward-hint">（偷偷告诉你：是个人）</div>
+    </div>
+    <div class="reward-reveal" id="rewardReveal">
+      <div style="font-size:15px;color:#6B4E8E;font-weight:600;margin-bottom:10px;">就是她，你的学姐 💗</div>
+      <div class="photo-row">
+        <div class="photo-item"><img src="imgs/xuejie1.jpg" alt="学姐"><div class="photo-cap">学姐</div></div>
+        <div class="photo-item"><img src="imgs/xuejie2.jpg" alt="学姐"><div class="photo-cap">还是学姐</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 你们以后的生活 -->
+  <section class="card">
+    <div class="card-head"><span class="card-title">🏠 考上之后的你们</span></div>
+    <div class="photo-row" style="margin-top:0;">
+      <div class="photo-item big"><img src="imgs/hezhao.jpg" alt="合照"><div class="photo-cap">现在的你们</div></div>
+    </div>
+    <div class="timeline" style="margin-top:18px;">
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2027 上岸</div><div class="tl-text">拿到录用通知那天，第一个打电话告诉她——「我考上了，以后我养你」</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">入职第一年</div><div class="tl-text">体制内的铁饭碗，终于敢正大光明地跟她规划未来了</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">第二年</div><div class="tl-text">求婚、领证，学姐变成你户口本上的人</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">第三年</div><div class="tl-text">小窝装修好，周末一起逛菜市场，她嫌你切菜慢</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">第五年</div><div class="tl-text">娃出生了，像妈妈多一点，你天天抱着舍不得放</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">很多年以后</div><div class="tl-text">你们还牵着手的合照，和现在这张一样，笑得一样开心</div></div>
+    </div>
+  </section>
+
+  <!-- 5. 兄弟加油 -->
+  <section class="card" style="text-align:center;">
+    <div class="card-head"><span class="card-title">🫡 兄弟给你喊话</span></div>
+    <div style="font-size:15px;color:#4A4453;line-height:1.8;margin-bottom:16px;">
+      行测刷不完的题，申论写不尽的字，<br>都是你在给她攒一个「以后」。<br>这次，上岸了再谈恋爱，一点不迟。
+    </div>
+    <button class="cheer-btn" id="cheerBtn">点一下，给你加把劲 💪</button>
+    <div class="cheer-count" id="cheerCount">已为你加油 0 次</div>
+  </section>
+
+  <footer class="foot">
+    <div>兄弟，等你上岸的好消息 🎯</div>
+    <div class="foot-sub">倒计时每一天都在少，你离她每一天都在近</div>
+  </footer>
+
+</div>
+
+<script>
+/* ============================================================
+   考试时间配置（老大在这里改）
+   - 国考已确定；省考按惯例填，标注待公告
+============================================================ */
+const EXAMS = {
+  guokao:   { name: '国考', date: '2026-11-29T09:00:00', label: '2026 年 11 月 29 日', note: '行政能力测验 + 申论' },
+  shengkao: { name: '广东', date: '2026-12-06T14:00:00', label: '2026 年 12 月 6 日', note: '广东省考 · 行测+申论（下午场）' },
+};
+
+const CHEER_LINES = [
+  '上岸！', '冲就完了', '她等你呢', '稳稳的', '行测满分手', '申论文思泉涌',
+  '兄弟最强', '这把稳赢', '别睡了刷题', '铁饭碗到手', '娶学姐娶学姐', '就差这一哆嗦',
+];
+
+/* 工具 */
+const $ = (id) => document.getElementById(id);
+const pad = (n) => String(n).padStart(2, '0');
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+let currentExam = 'guokao';
+
+/* ============================================================
+   倒计时
+============================================================ */
+function renderCountdown() {
+  const exam = EXAMS[currentExam];
+  const target = new Date(exam.date);
+  const now = new Date();
+  const grid = $('countGrid');
+  $('countLabel').textContent = `距离 ${new Date().getFullYear() >= target.getFullYear() ? '' : ''}${exam.name}笔试`;
+  $('countDate').textContent = exam.label + ' · ' + exam.note;
+
+  if (target <= now) {
+    grid.innerHTML = `<div class="count-done">考试进行中 / 已结束 🎯</div>`;
+    return;
+  }
+  const diff = Math.floor((target - now) / 1000);
+  const d = Math.floor(diff / 86400);
+  const h = Math.floor((diff % 86400) / 3600);
+  const m = Math.floor((diff % 3600) / 60);
+  const s = diff % 60;
+  const cells = [
+    { n: d, u: '天' }, { n: h, u: '时' }, { n: m, u: '分' }, { n: s, u: '秒' },
+  ];
+  grid.innerHTML = cells.map(c =>
+    `<div class="count-cell"><div class="count-num">${pad(c.n)}</div><div class="count-unit">${c.u}</div></div>`
+  ).join('');
+}
+
+/* ============================================================
+   冲刺进度（国考时间轴）
+============================================================ */
+function renderProgress() {
+  const now = new Date();
+  const start = new Date('2026-10-15T08:00:00'); // 报名开始
+  const end = new Date(EXAMS.shengkao.date);      // 广东省考（最终节点）
+  const pct = Math.max(0, Math.min(100, (now - start) / (end - start) * 100));
+  $('progressFill').style.width = pct.toFixed(1) + '%';
+  $('progressText').textContent = `已走过 ${pct.toFixed(1)}% 的备考路，最后冲刺别松劲`;
+}
+
+/* ============================================================
+   奖励揭晓
+============================================================ */
+function bindReward() {
+  $('rewardTrigger').addEventListener('click', () => {
+    $('rewardReveal').classList.add('show');
+    $('rewardTrigger').style.display = 'none';
+    burstHearts(20);
+  });
+}
+
+/* ============================================================
+   兄弟加油
+============================================================ */
+const CHEER_KEY = 'cheer_count_v1';
+function loadCheer() { try { return +localStorage.getItem(CHEER_KEY) || 0; } catch(e) { return 0; } }
+function saveCheer(n) { localStorage.setItem(CHEER_KEY, n); }
+
+function bindCheer() {
+  const render = () => { $('cheerCount').textContent = `已为你加油 ${loadCheer()} 次`; };
+  render();
+  $('cheerBtn').addEventListener('click', () => {
+    saveCheer(loadCheer() + 1);
+    render();
+    const btn = $('cheerBtn');
+    const line = pick(CHEER_LINES);
+    showBubble(window.innerWidth/2, btn.getBoundingClientRect().top, line);
+    burstHearts(8);
+  });
+}
+
+/* ============================================================
+   气泡 & 飘心
+============================================================ */
+function showBubble(x, y, text) {
+  const b = document.createElement('div');
+  b.style.cssText = `
+    position:fixed; left:${x}px; top:${y}px; z-index:50;
+    background:rgba(255,255,255,.95); border-radius:16px; padding:10px 16px;
+    font-size:15px; color:#6B4E8E; box-shadow:0 6px 18px rgba(120,90,150,.25);
+    animation:bubbleUp 1.8s ease-out forwards; max-width:220px; line-height:1.5;
+    border:1px solid rgba(169,140,200,.5);
+  `;
+  b.textContent = text;
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 1900);
+}
+function burstHearts(count = 5) {
+  const layer = $('heartsBg');
+  const hearts = ['💗','💜','🌸','💕','🤍','💖'];
+  for (let i = 0; i < count; i++) {
+    const h = document.createElement('div');
+    h.className = 'float-heart';
+    h.textContent = pick(hearts);
+    h.style.left = (Math.random() * window.innerWidth) + 'px';
+    h.style.fontSize = (16 + Math.random() * 16) + 'px';
+    h.style.animationDuration = (4 + Math.random() * 3) + 's';
+    h.style.animationDelay = (Math.random() * 0.4) + 's';
+    layer.appendChild(h);
+    setTimeout(() => h.remove(), 8000);
+  }
+}
+
+/* ============================================================
+   切换考试 tab
+============================================================ */
+function bindTabs() {
+  document.querySelectorAll('.exam-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.exam-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentExam = tab.dataset.exam;
+      renderCountdown();
+    });
+  });
+}
+
+/* 启动 */
+function init() {
+  bindTabs();
+  renderCountdown();
+  renderProgress();
+  bindReward();
+  bindCheer();
+  setInterval(renderCountdown, 1000);
+  setInterval(() => burstHearts(1), 5000);
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
